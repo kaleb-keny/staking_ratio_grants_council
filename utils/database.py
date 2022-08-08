@@ -13,8 +13,10 @@ class Database():
         self.generate_missing_tables(topics)
 
     def init_if_new(self,topics):        
+        
         if not self.check_if_db_exists():
             self.initialize_db(topics)
+        self.generate_missing_tables(topics)
 
     def check_if_db_exists(self):
         sqlConf = self.conf.get('mysql')        

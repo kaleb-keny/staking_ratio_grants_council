@@ -3,3 +3,4 @@
 *.pyc
 *.bak
 config/conf.yaml
+log.log

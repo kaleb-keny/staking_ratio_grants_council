@@ -1,7 +1,10 @@
 from utils.gather_state import GatherState
 from utils.snx_contracts import SnxContracts
 from utils.gather_logs import GatherLogs
+import logging, watchtower
+from logging.handlers import TimedRotatingFileHandler
 import sys
+import boto3
 import time 
 
 class UpdateData(GatherState,GatherLogs,SnxContracts):
@@ -20,11 +23,15 @@ class UpdateData(GatherState,GatherLogs,SnxContracts):
         self.prepare_output()
         
     def run_update_data_docker(self):
+        self.log_init(self.conf)
         while True:
             try:
+                self.log("preparing cratio",False)
                 self.run_update_data()
+                self.log("cratio computed successfully",False)
                 time.sleep(60*60*6)
             except:
+                self.logger.exception('issue seen with staking ratio, trying again')
                 sys.exit(1)
             
     def prepare_output(self):
@@ -47,3 +54,32 @@ class UpdateData(GatherState,GatherLogs,SnxContracts):
             dfStaked  = dfStaked [dfStaked["network"]==chain].copy() 
             return dfStaked["collateral"].sum() / self.totalSnxSupply[chain]
         return dfStaked["collateral"].sum()/sum(self.totalSnxSupply.values())
+
+    def log_init(self,conf):
+        logging.basicConfig(handlers=[logging.FileHandler(filename="log.log", 
+                                                         encoding='utf-8', mode='a+')],
+                            format="%(asctime)s %(name)s:%(levelname)s:%(message)s", 
+                            datefmt="%F %A %T", 
+                            level=logging.INFO)                                
+        self.logger = logging.getLogger(__name__)
+        handler = TimedRotatingFileHandler(filename='log.log', when='D', interval=1, backupCount=5, encoding='utf-8', delay=True)
+        self.logger.addHandler(handler)
+        try:            
+            boto3Client = boto3.client("logs",
+                                       aws_access_key_id=conf["aws"]["keyId"],
+                                       aws_secret_access_key=conf["aws"]["secretKey"],
+                                       region_name=conf["aws"]['region'])
+            self.logger.addHandler(watchtower.CloudWatchLogHandler(boto3_client=boto3Client, 
+                                                                   log_group=conf["aws"]['logGroup'],
+                                                                   log_stream_name=conf["aws"]['stream'],
+                                                                   create_log_stream=True))
+            self.logger.debug(msg='this error was seen')
+        except:
+            self.logger.exception('issue streaming logs')
+            
+    def log(self,message,isWarning):
+        if isWarning:
+            self.logger.warning(message) 
+        else:
+            self.logger.info(message)                                        
+    

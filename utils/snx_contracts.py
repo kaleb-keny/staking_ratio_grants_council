@@ -18,13 +18,14 @@ class SnxContracts():
                 return requests.get(self.conf["etherscan"][chain].format(address),headers=headers).json()["result"]
             except KeyboardInterrupt:
                 return None
-            except Exception as e:
-                print(f"error {e} seen trying again")
+            except:
+                self.logger.exception('issue seen with fetching abi, trying again')
                 time.sleep(2)
                 #in case it keeps running for more than 3 min
                 #to fetch an abi, backoff and exit
                 if time.time() - runTime > 180:
                     time.sleep(60)
+                    self.log('abi fetch retry cound exceeded, exiting',True)
                     sys.exit(1)
 
     def setup_address_resolver(self):

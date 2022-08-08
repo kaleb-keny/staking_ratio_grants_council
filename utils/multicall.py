@@ -68,9 +68,9 @@ class Multicall():
                 except KeyboardInterrupt:
                     return None
 
-                except Exception as e:
+                except:
+                    self.logger.exception('issue seen with multicall, trying again')
                     tries+=1
-                    print(f"error seen while running multicall on chain {chain}, {e}, trying again")  
                     await asyncio.sleep(2)
 
         #decode the responses  ['uint256',[bytes[]]] < [blockNumber,[ETH_VALUES]]
