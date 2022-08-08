@@ -1,0 +1,36 @@
+version: '3.3'
+services:
+  db:
+    image: mysql:8.0
+    cap_add:
+      - SYS_NICE
+    restart: always
+    environment:
+      - MYSQL_DATABASE=staking_ratio_gc
+      - MYSQL_ROOT_PASSWORD=abc123
+    ports:
+      - '3315:3315'
+    volumes:
+      - db:/var/lib/mysql
+  py_service:
+    container_name: staking_ratio_gc
+    build: .
+    command: ./main.py -t docker_run
+    depends_on:
+      - db
+    ports:
+      - 85:85
+    environment:
+      DB_HOST: db
+      DB_PORT: 3315
+      DB_USER: root
+      DB_PASSWORD: abc123
+      DB_NAME: staking_ratio_gc
+    links:
+      - db
+    volumes:
+      - py_output:/app/output
+volumes:
+  db:
+    driver: local
+  py_output:

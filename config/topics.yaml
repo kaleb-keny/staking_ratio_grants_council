@@ -1,0 +1,3 @@
+mint:
+    topic: 'Mint(address,uint256)'
+    contract: 'SynthetixDebtShare'
