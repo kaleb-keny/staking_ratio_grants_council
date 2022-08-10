@@ -1,8 +1,8 @@
 # staking_ratio_grants_council
 
-```
 `conf.yaml` file should be incorporated into config folder with the following:
 
+```
 ---
 rpc:
     http:
