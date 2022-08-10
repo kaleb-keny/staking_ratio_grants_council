@@ -2,6 +2,7 @@ from utils.gather_state import GatherState
 from utils.snx_contracts import SnxContracts
 from utils.gather_logs import GatherLogs
 import logging, watchtower
+import json
 from logging.handlers import TimedRotatingFileHandler
 import sys
 import boto3
@@ -43,9 +44,14 @@ class UpdateData(GatherState,GatherLogs,SnxContracts):
         contract    = self.get_snx_contract(contractName='Synthetix', chain='ethereum')
         totalSupply = contract.functions.totalSupply().call()
         cratio = df["collateral"].sum() / totalSupply
-        with open("output/cratio.txt","w") as f:
-            f.write(f'''{int(time.time())}/{cratio}''')
-        
+        stakedSnx = df.groupby(by='network')["collateral"].sum()/1e18
+        output = {"cratio":cratio,
+                  "timestamp":int(time.time()),
+                  "stakedSnx":{"ethereum":stakedSnx["ethereum"],
+                               "optimism":stakedSnx["optimism"]}}
+        with open("output/output.json","w") as f:
+            json.dump(output,f,indent=6)
+                
     def get_staking_ratio(self,df,chain):
         dfStaked  = df[df["debt"] > 1].copy()        
         if chain in ['ethereum','optimism']:
