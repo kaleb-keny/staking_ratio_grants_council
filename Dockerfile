@@ -1,4 +1,4 @@
-FROM python:3.7
+FROM synthetixio/docker-node:16.14-ubuntu
 
 WORKDIR /app
 COPY . .
