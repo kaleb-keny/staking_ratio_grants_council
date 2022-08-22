@@ -12,4 +12,3 @@ It reads data from `output/output.json` file and presents it in parseable JSON f
 ## Endpoints
 
 - `/` => presents all of the data
-- `/?key=<currencyKey>` => presets data for specific currency
