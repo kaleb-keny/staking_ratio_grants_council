@@ -3,7 +3,7 @@
 ## How to use
 
 - `npm install`
-- `npm run start` (port 3000) or `USED_PORT=3001 npm run start`
+- `npm run start` (port 3001) or `USED_PORT=3002 npm run start`
 
 ## What does it do
 
