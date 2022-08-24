@@ -32,6 +32,7 @@ class UpdateData(GatherState,GatherLogs,SnxContracts):
                 self.log("cratio computed successfully",False)
                 time.sleep(60*60*6)
             except:
+                time.sleep(60*60)
                 self.logger.exception('issue seen with staking ratio, trying again')
                 sys.exit(1)
             
