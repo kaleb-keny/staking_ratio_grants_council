@@ -4,7 +4,6 @@ services:
     image: mysql:8.0
     cap_add:
       - SYS_NICE
-    restart: always
     environment:
       - MYSQL_DATABASE=staking_ratio_gc
       - MYSQL_ROOT_PASSWORD=abc123
@@ -12,6 +11,7 @@ services:
       - '3315:3315'
     volumes:
       - db:/var/lib/mysql
+    restart: unless-stopped
   py_service:
     container_name: staking_ratio_gc
     build: .
@@ -30,6 +30,15 @@ services:
       - db
     volumes:
       - py_output:/app/output
+    restart: unless-stopped
+  api:
+    container_name: api
+    build: ./endpoint/
+    volumes:
+      - py_output:/app/output
+    ports:
+      - 3001:3001
+    restart: unless-stopped
 volumes:
   db:
     driver: local

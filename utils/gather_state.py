@@ -31,6 +31,9 @@ class GatherState(Multicall,Database):
         df["address"] = df.index
         df.columns    = ['collateral','address']
         df["collateral"] = df["collateral"].astype(str)        
+        df["debt"] = 0
+        df["network"] = chain
+        df = df[["address","collateral","debt","network"]]
         self.push_state_to_server(df,'collateral',chain)
 
     def update_debt(self,addressList,chain):
@@ -43,7 +46,10 @@ class GatherState(Multicall,Database):
         df            = pd.DataFrame(output).T
         df["address"] = df.index
         df.columns    = ['debt','address']
-        df["debt"] = df["debt"].astype(str)        
+        df["collateral"] = 0
+        df["debt"] = df["debt"].astype(str)
+        df["network"] = chain
+        df = df[["address","collateral","debt","network"]]
         self.push_state_to_server(df,'debt',chain)
         
     def run_async_task(self,task):
@@ -59,9 +65,16 @@ class GatherState(Multicall,Database):
             loop.run_until_complete(group)
                 
     def push_state_to_server(self,df,field,chain):                
-
+        
+        #Drop the temp table
+        self.push_sql_to_server("DROP TABLE IF EXISTS temp;")
+        
+        #Create temp table like snx holder
+        self.push_sql_to_server("CREATE TABLE temp  LIKE snx_holder;")
+        
+        #Insert data into the temp table    
         with self.get_mysql_connection() as con:
-            df.to_sql("temp",con,index=False,if_exists='replace')
+            df.to_sql("temp",con,index=False,if_exists='append')
 
         sql = \
             f'''
@@ -70,14 +83,9 @@ class GatherState(Multicall,Database):
             INNER JOIN
                 temp t ON
             s.address = t.address
+            AND
+            s.network = t.network
             SET
                 s.{field} = IFNULL(t.{field},0)
-            WHERE
-                network = '{chain}';
             '''
-        self.push_sql_to_server(sql)
-        
-#%%
-if __name__ == '__main__':
-    self=gather_state(conf)
-    # self.run_gather_state()
+        self.push_sql_to_server(sql)    

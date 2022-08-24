@@ -32,6 +32,7 @@ class UpdateData(GatherState,GatherLogs,SnxContracts):
                 self.log("cratio computed successfully",False)
                 time.sleep(60*60*6)
             except:
+                time.sleep(60*60)
                 self.logger.exception('issue seen with staking ratio, trying again')
                 sys.exit(1)
             
@@ -43,9 +44,9 @@ class UpdateData(GatherState,GatherLogs,SnxContracts):
         #save collateralization ratio
         contract    = self.get_snx_contract(contractName='Synthetix', chain='ethereum')
         totalSupply = contract.functions.totalSupply().call()
-        cratio = df["collateral"].sum() / totalSupply
+        systemStakingPercent = df["collateral"].sum() / totalSupply
         stakedSnx = df.groupby(by='network')["collateral"].sum()/1e18
-        output = {"cratio":cratio,
+        output = {"systemStakingPercent":systemStakingPercent,
                   "timestamp":int(time.time()),
                   "stakedSnx":{"ethereum":stakedSnx["ethereum"],
                                "optimism":stakedSnx["optimism"]}}

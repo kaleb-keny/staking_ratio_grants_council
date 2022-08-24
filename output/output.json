@@ -1,8 +1,8 @@
 {
-      "cratio": 0.7339104147412211,
-      "timestamp": 1660142652,
+      "systemStakingPercent": 0.7340344110495849,
+      "timestamp": 1661333119,
       "stakedSnx": {
-            "ethereum": 134940195.19759858,
-            "optimism": 76582560.91378011
+            "ethereum": 135506047.03458285,
+            "optimism": 78580455.18643415
       }
 }
