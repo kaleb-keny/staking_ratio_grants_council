@@ -1,4 +1,3 @@
-const data = require('../output/output.json');
 const cors = require('cors');
 const express = require('express');
 const app = express();
@@ -8,6 +7,7 @@ app.use(cors());
 app.set('json spaces', 2);
 
 app.get('/', async (req, res) => {
+  const data = require('../output/output.json');
   if (data) {
     res.json(data);
   } else {
