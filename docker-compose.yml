@@ -32,7 +32,7 @@ services:
       - py_output:/app/output
     restart: unless-stopped
   api:
-    container_name: api
+    container_name: api_staking_ratio
     build: ./endpoint/
     volumes:
       - py_output:/app/output
