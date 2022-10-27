@@ -2,6 +2,7 @@ import asyncio
 import pandas as pd
 from utils.multicall import Multicall
 from utils.database import Database
+from funcy import chunks
 
 class GatherState(Multicall,Database):
 
@@ -18,8 +19,13 @@ class GatherState(Multicall,Database):
             addressList = self.get_df_from_server(sql)["address"].to_list()
     
             #get debt / collateral of all addys
-            self.update_collateral(addressList,chain)
-            self.update_debt(addressList,chain)
+            for addressChunk in chunks(3000,addressList):
+                try:
+                    self.update_collateral(addressChunk,chain)
+                    self.update_debt(addressChunk,chain)
+                except:
+                    self.logger.exception('state of address update failed')
+            
         
     def update_collateral(self,addressList,chain):
         task   = self.run_multicall(addressList, 

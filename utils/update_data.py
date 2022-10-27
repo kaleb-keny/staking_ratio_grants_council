@@ -19,9 +19,8 @@ class UpdateData(GatherState,GatherLogs,SnxContracts):
     def run_update_data(self):        
         self.run_gather_logs()
         self.run_gather_state()                
-        sql = 'delete from snx_holder where collateral < 1e18;'
-        self.push_sql_to_server(sql)
         self.prepare_output()
+        self.maintain_list()
         
     def run_update_data_docker(self):
         self.log_init(self.conf)
@@ -61,6 +60,10 @@ class UpdateData(GatherState,GatherLogs,SnxContracts):
             dfStaked  = dfStaked [dfStaked["network"]==chain].copy() 
             return dfStaked["collateral"].sum() / self.totalSnxSupply[chain]
         return dfStaked["collateral"].sum()/sum(self.totalSnxSupply.values())
+
+    def maintain_list(self):
+        sql=''' delete from snx_holder where debt<1e18 or collateral<1e18;'''
+        self.push_sql_to_server(sql)
 
     def log_init(self,conf):
         logging.basicConfig(handlers=[logging.FileHandler(filename="log.log", 
