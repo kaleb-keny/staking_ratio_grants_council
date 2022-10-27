@@ -21,7 +21,7 @@ class GatherState(Multicall,Database):
             #get debt / collateral of all addys
             for addressChunk in chunks(5000,addressList):
                 counter=0
-                while counter<2:
+                while counter<3:
                     try:
                         counter+=1
                         self.update_collateral(addressChunk,chain)
@@ -31,6 +31,7 @@ class GatherState(Multicall,Database):
                         self.logger.exception(f'state of address update failed, trying again, try counter {counter}')
                         counter+=1
                         time.sleep(3)
+                        continue
                     self.log("log counter exceeded",True)
         
     def update_collateral(self,addressList,chain):
